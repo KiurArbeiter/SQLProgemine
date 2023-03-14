@@ -145,3 +145,88 @@ select TOP 3 * from Person
 
 
 --- 2 tund jahjah
+--- muudab age muutuja int-iks ja naitab vanulises jarjekorras
+select * from Person order by CAST(Age as int)
+
+--- koikide isikute koondvanus
+select SUM(CAST(Age as int)) from Person
+
+--- naitab koige nooremat isikut
+select MIN(CAST(Age as int)) from Person
+
+--- naitab koige vaneamt isikut
+select MAX(CAST(Age as int)) from Person
+
+
+--- näeme konkreetses linnades olevate isikute koondvanust
+--- enne oli age string, aga päringu ajhal muutsime sele int-ks
+select City, SUM(cast(Age as int)) as TotalAge from Person group by City
+
+--- kuidas saab koodiga muuta tabeli andmetüüpi ja selle pikkust
+alter table Person
+alter column Name nvarchar(25)
+
+alter table Person
+alter column Age int
+
+--- kuvab esimeses reas välja toodud järjestuses ja muudab Age-i TotalAge-ks
+--- teeb järjestuse vaatesse: City, GenderId ja järjestab omakorda City veeru järgi
+select City, GenderId, SUM(Age) as TotalAge from Person
+group by City, GenderId order by City
+
+--- naitab, et mitu rida on selles tabelis
+select COUNT(*) from Person
+
+--- veergude lugemine
+SELECT COUNT(*)
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Person'
+
+--- naitab tulemust, et mitu inimest on genderid 
+--- väärtusega 2 konkreetses linnas
+--- arvutab kokku vanuse
+select GenderId, City, SUM(Age) as TotalAge, COUNT(Id) as  [Total Person(s)]
+from Person
+where GenderId = '2'
+group by GenderId, City
+
+--- naitab, et mitu inimest on vanemad kui 41 ja kui palju igas linnas 
+select GenderId, City, SUM(Age) as TotalAge, COUNT(Id) as  [Total Person(s)]
+from Person
+group by GenderId, City having SUM(Age) > 41
+
+--- loome uued tabelid
+create table Department
+(
+Id int primary key,
+DepartmentName nvarchar(50),
+Location nvarchar(50),
+DepartmentHead nvarchar(50)
+)
+
+create table Employees
+(
+Id int primary key,
+Name nvarchar(50),
+Gender nvarchar(50),
+Salary nvarchar(50),
+DepartmentId int
+)
+
+insert into Department (Id, DepartmentName, Location, DepartmentHead) values
+(1, 'IT', 'London', 'Rick'),
+(2, 'Payroll', 'Delhi', 'Ron'),
+(3, 'HR', 'New York', 'Christie'),
+(4, 'Other Department', 'Sydney', 'Cindrella')
+
+insert into Employees (Id, Name, Gender, Salary, DepartmentId) values
+(1, 'Tom', 'Male', '4000', 1),
+(2, 'Pam', 'Female', '3000', 3),
+(3, 'John', 'Male', '3500', 1),
+(4, 'Sam', 'Male', '4500', 2),
+(5, 'Todd', 'Male', '2800', 2),
+(6, 'Ben', 'Male', '7000', 1),
+(7, 'Sara', 'Female', '4800', 3),
+(8, 'Valarie', 'Female', '5500', 1),
+(9, 'James', 'Male', '6500', NULL),
+(10, 'Russell', 'Male', '8800', NULL)
