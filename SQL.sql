@@ -230,3 +230,141 @@ insert into Employees (Id, Name, Gender, Salary, DepartmentId) values
 (8, 'Valarie', 'Female', '5500', 1),
 (9, 'James', 'Male', '6500', NULL),
 (10, 'Russell', 'Male', '8800', NULL)
+
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+
+--- lisame veeru nimega City
+alter table Employees
+add City nvarchar(50)
+
+select * from Employees
+
+--- arvutame ühe kuu palgafondi kokku
+select SUM(cast(Salary as int)) from Employees
+--- min palga saaja ja kuitahame max palga saajat, siis kasutame MIN asemele MAX panna
+select MIN(cast(Salary as int)) from Employees
+--- ühe kuu palgafond linnade lõikes
+select City, SUM(cast(Salary as int)) as TotalSalary from Employees 
+group by City
+
+--- linnad on tahestikulises jarjestuses
+select City, SUM(cast(Salary as int)) as TotalSalary from Employees 
+group by City, Gender
+order by City
+
+--- loeb ara mitu inimest on nimekirjas
+select COUNT(*) from Employees
+
+--- vaatame mitu tootajat on soo ja linna kaupa
+select Gender, City, SUM(cast(Salary as int)) as TotalSalary,
+COUNT(Id) as [Total Employee(s)]
+from Employees
+group by Gender, City
+
+--- näidata kõiki mehi linnade kaupa
+select Gender, City, SUM(cast(Salary as int)) as TotalSalary,
+COUNT(Id) as [Total Employee(s)]
+from Employees
+where Gender = 'Male'
+group by Gender, City
+
+--- näidata kõiki naisi linnade kaupa
+select Gender, City, SUM(cast(Salary as int)) as TotalSalary,
+COUNT(Id) as [Total Employee(s)]
+from Employees
+group by Gender, City
+having Gender = 'Female'
+
+
+--- vigane päring
+select * from Employees where SUM(CAST(Salary as int)) > 4000
+
+--- töötav variant
+select Gender, City, SUM(CAST(Salary as int)) as [Total Salary],
+COUNT(Id) as [Total Employee(s)]
+from Employees group by Gender, City
+having SUM(CAST(Salary as int)) > 4000
+
+--- loome tabeli, milles hakatakse automaatselt nummerdama Id-d
+create table Test1
+(
+Id int identity(1,1),
+Value nvarchar(20)
+)
+
+insert into Test1 values('X')
+
+select * from Test1
+
+--- inner join
+--- kuvab neid, kellel on DepartmentName all olemas vaartus
+select Name, Gender, Salary, DepartmentName
+from Employees
+inner join Department
+on Employees.DepartmentId = Department.Id
+
+--- left join
+--- kuidas saada koik andmed Employees-st katte
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department --- voib kasutada ka LEFT OUTER JOIN-i
+on Employees.DepartmentId = Department.Id
+
+--- naitab koik tootajad Employee tabelist ja Department tabelist
+--- osakonnad, kuhu ei ole kedagi maaratud
+select Name, Gender, Salary, DepartmentName
+from Employees
+right join Department --- voib kasutada ka RIGHT OUTER JOIN-i
+on Employees.DepartmentId = Department.Id
+
+--- kuidas saada koikide tabelite vaartused uhte paringusse
+select Name, Gender, Salary, DepartmentName
+from Employees
+full outer join Department
+on Employees.DepartmentId = Department.Id
+
+---votab kaks allpool olevat tabelit kokku ja korrutab need omavahel labi
+select Name, Gender, Salary, DepartmentName
+from Employees
+cross join Department
+
+--- kuidas kuvada need isikud, kellel on Department NULL
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+
+--- teine variant
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+where Department.Id is null
+
+--- kuidas saame department tabelis oleva rea, kus on NULL
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+
+--- full join
+--- molema tabeli mitte-kattuvad vaartustega read kuvab valja
+select Name, Gender, Salary, DepartmentName
+from Employees
+full join Department
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+or Department.Id is null
+
+select * from dbo.DimEmployee
+--- tahan teada saada, mis tahendab SalesTerritoryKey DimEmployee tabelis
+--- inner join-i kasutada
+select FirstName, LastName, Phone, SalesTerritoryCountry, SalesTerritoryGroup, SalesTerritoryRegion
+from dbo.DimEmployee
+inner join dbo.DimSalesTerritory
+on dbo.DimEmployee.SalesTerritoryKey = dbo.DimEmployee.SalesTerritoryKey
